@@ -4,23 +4,24 @@ import envConfig from "../config/environment.mjs";
 
 const generateRefreshToken = (user) => {
   const token = jsonwebtoken.sign(
-    { userId: user.userId, username: user.username, role: user.role },
+    { userId: user.userId, role: user.role },
     envConfig.refreshTokenSecret,
-    { expiresIn: "7d" }
+    { expiresIn: parseInt(envConfig.refreshTokenExpire) || "1d" }
   );
   return token;
 };
 
 const generateAccessToken = (user) => {
   const token = jsonwebtoken.sign(
-    { userId: user.userId, username: user.username, role: user.role },
+    { userId: user.userId, email: user.email, role: user.role },
     envConfig.accessTokenSecret,
-    { expiresIn: "15m" }
+    { expiresIn: parseInt(envConfig.accessTokenExpire) || "15m" }
   );
   return token;
 };
 
-const emailVerificationToken = (userId) => {
+const emailVerificationToken = (user) => {
+  const userId = user.userId;
   const random = crypto.randomBytes(32).toString("hex");
   const timeStamp = Date.now();
   const hmac = crypto
@@ -31,7 +32,8 @@ const emailVerificationToken = (userId) => {
   return `${random}.${timeStamp}.${hmac}`;
 };
 
-const resetPasswordToken = (userId) => {
+const resetPasswordToken = (user) => {
+  const userId = user.userId;
   const random = crypto.randomBytes(32).toString("hex");
   const timeStamp = Date.now();
   const hmac = crypto

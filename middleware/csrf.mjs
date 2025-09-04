@@ -1,8 +1,10 @@
 import crypto from "crypto";
 import envConfig from "../config/environment.mjs";
+import { logger } from "./logger.mjs";
 
 // Generate csrf tokens
-const generateCsrfToken = (userId) => {
+const generateCsrfToken = (user) => {
+  const userId = user.userId;
   const random = crypto.randomBytes(32).toString("hex");
   const timeStamp = Date.now();
   const hmac = crypto
@@ -14,7 +16,8 @@ const generateCsrfToken = (userId) => {
 };
 
 // verify csrf token
-const verifyCsrfToken = (userId, token) => {
+const verifyCsrfToken = (user, token) => {
+  const userId = user.userId;
   try {
     // Validate token format
     const tokenParts = token.split(".");
@@ -38,7 +41,7 @@ const verifyCsrfToken = (userId, token) => {
     // Constant-time comparison to prevent timing attacks
     return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(hmacToVerify));
   } catch (error) {
-    console.error("CSRF token verification error:", error);
+    logger.warn(`CSRF token validateion error: ${error}`);
     return false;
   }
 };
@@ -47,19 +50,19 @@ const validateCsrfToken = (req, res, next) => {
   try {
     const token = req.headers["x-csrf-token"];
     const cookieToken = req.cookies["x-csrf-token"];
-    const userId = req.user?.userId;
+    const user = req.user;
 
     // Check if all required components are present
     if (!token || !cookieToken) {
       console.warn(
         `CSRF validation failed - Missing tokens. IP: ${req.ip}, User: ${
-          userId || "unknown"
+          user?.userId || "unknown"
         }`
       );
       return res.status(403).json({ Error: "CSRF token is required" });
     }
 
-    if (!userId) {
+    if (!user?.userId) {
       console.warn(`CSRF validation failed - No userId. IP: ${req.ip}`);
       return res.status(403).json({ Error: "Forbidden" });
     }
@@ -67,32 +70,32 @@ const validateCsrfToken = (req, res, next) => {
     // Verify that header token matches cookie token
     if (token !== cookieToken) {
       console.warn(
-        `CSRF validation failed - Token mismatch. IP: ${req.ip}, User: ${userId}`
+        `CSRF validation failed - Token mismatch. IP: ${req.ip}, User: ${user?.userId}`
       );
       return res.status(403).json({ Error: "Invalid CSRF token" });
     }
 
     // Verify token authenticity
-    if (!verifyCsrfToken(userId, token)) {
+    if (!verifyCsrfToken(user, token)) {
       console.warn(
-        `CSRF validation failed - Invalid token. IP: ${req.ip}, User: ${userId}`
+        `CSRF validation failed - Invalid token. IP: ${req.ip}, User: ${user?.userId}`
       );
       return res.status(403).json({ Error: "Invalid CSRF token" });
     }
 
     // Generate and set new rotated token
-    const rotateToken = generateCsrfToken(userId);
+    const rotateToken = generateCsrfToken(user);
     res.cookie("x-csrf-token", rotateToken, {
       httpOnly: true,
       secure: envConfig.nodeEnv === "production",
       sameSite: "strict",
-      maxAge: parseInt(envConfig.csrfExpire),
+      maxAge: parseInt(envConfig.csrfTokenExpire),
     });
     res.setHeader("x-csrf-token", rotateToken);
 
     return next();
   } catch (error) {
-    console.error("CSRF middleware error:", error);
+    logger.warn(`CSRF middleware error: ${error}`);
     return res.status(500).json({ Error: "Internal server error" });
   }
 };

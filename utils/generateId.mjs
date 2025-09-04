@@ -1,4 +1,4 @@
-import { v4, v7 } from uuid;
+import { v4, v7 } from "uuid";
 
 const generateUserId = () => {
   return `user_${v4()}`;

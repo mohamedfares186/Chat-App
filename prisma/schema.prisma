@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -15,25 +14,14 @@ datasource db {
 }
 
 model Users {
-  id          Int      @id @default(autoincrement())
+  id          String   @id       @default(cuid())
   userId      String   @unique
   firstName   String
   lastName    String
   email       String   @unique
   username    String   @unique
   password    String
-  dateOfBirth DateTime
-  isVerified  Boolean  @default(false)
-  role        String   @default("user")
-
-  tokens      Tokens[]
-}
-
-model Tokens {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  user          Users    @relation(fields: [userId], references: [id])
-  refresh_token String   @unique
-  createdAt     DateTime @default(now())
-  expiresAt     DateTime
+  dateOfBirth DateTime 
+  isVerified  Boolean            @default(false)
+  role        String             @default("user")
 }
