@@ -13,15 +13,425 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enums for restricted values
+enum RoleType {
+  ADMIN
+  MODERATOR
+  USER
+}
+
+enum UserStatusType {
+  ONLINE
+  AWAY
+  BUSY
+  INVISIBLE
+}
+
+enum ConversationType {
+  PRIVATE
+  GROUP
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  VOICE
+  VIDEO
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  INAPPROPRIATE_CONTENT
+  VIOLENCE
+  HATE_SPEECH
+  OTHER
+}
+
+enum PrivacyLevel {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum GroupMemberRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
 model Users {
-  id          String   @id       @default(cuid())
-  userId      String   @unique
-  firstName   String
-  lastName    String
+  id          Int      @id @default(autoincrement())
+  userId      String   @unique // Generated via UUID in service layer
+  displayName String
   email       String   @unique
   username    String   @unique
-  password    String
-  dateOfBirth DateTime 
-  isVerified  Boolean            @default(false)
-  role        String             @default("user")
+  password    String?
+  dateOfBirth DateTime
+
+  // OAuth providers
+  googleId    String? @unique
+  facebookId  String? @unique
+
+  // Status fields
+  isVerified  Boolean @default(false)
+  isBanned    Boolean @default(false)
+  isActive    Boolean @default(true)
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  sessions               Sessions[]
+  userRoles             UserRoles[]
+  userPermissions       UserPermissions[] @relation("UserPermissionsUser")
+  grantedPermissions    UserPermissions[] @relation("UserPermissionsGrantedBy")
+  status                UserStatuses?
+  settings              UserSettings?
+  sentMessages          Messages[] @relation("MessageSender")
+  receivedMessages      Messages[] @relation("MessageReceiver")
+  groupMemberships      GroupMembers[]
+  conversationsAsUserOne PrivateConversations[] @relation("ConversationUserOne")
+  conversationsAsUserTwo PrivateConversations[] @relation("ConversationUserTwo")
+  createdGroups         GroupConversations[]
+  media                 Media[]
+  notifications         UserNotifications[]
+  sentReports           Reports[] @relation("Reporter")
+  receivedReports       Reports[] @relation("ReportedUser")
+  blockedUsers          BlockLists[] @relation("Blocker")
+  blockedBy             BlockLists[] @relation("BlockedUser")
+
+  @@map("users")
+}
+
+model Sessions {
+  id           Int      @id @default(autoincrement())
+  sessionId    String   @unique // Generated via UUID in service layer
+  userId       String   // References Users.userId (UUID string)
+  refreshToken String
+  userAgent    String?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  // Relations
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Roles {
+  id          Int      @id @default(autoincrement())
+  roleId      String   @unique // Generated via UUID in service layer
+  name        RoleType @unique
+  description String?
+  level       Int      @unique // For hierarchy: 1=user, 2=moderator, 3=admin
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  userRoles       UserRoles[]
+  rolePermissions RolePermissions[]
+
+  @@map("roles")
+}
+
+model UserRoles {
+  id     Int    @id @default(autoincrement())
+  userId String // References Users.userId (UUID string)
+  roleId String // References Roles.roleId (UUID string)
+
+  // Relations
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  role Roles @relation(fields: [roleId], references: [roleId], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model Permissions {
+  id            Int    @id @default(autoincrement())
+  permissionId  String @unique // Generated via UUID in service layer
+  name          String @unique
+  description   String?
+  category      String // 'user', 'room', 'message', 'admin', etc.
+  createdAt     DateTime @default(now())
+
+  // Relations
+  rolePermissions RolePermissions[]
+  userPermissions UserPermissions[]
+
+  @@index([category])
+  @@map("permissions")
+}
+
+model RolePermissions {
+  id           Int    @id @default(autoincrement())
+  roleId       String // References Roles.roleId (UUID string)
+  permissionId String // References Permissions.permissionId (UUID string)
+
+  // Relations
+  role       Roles       @relation(fields: [roleId], references: [roleId], onDelete: Cascade)
+  permission Permissions @relation(fields: [permissionId], references: [permissionId], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model UserPermissions {
+  id           Int      @id @default(autoincrement())
+  userId       String   // References Users.userId (UUID string)
+  permissionId String   // References Permissions.permissionId (UUID string)
+  granted      Boolean  @default(true) // true=grant, false=revoke
+  grantedBy    String   // References Users.userId (UUID string)
+  grantedAt    DateTime @default(now())
+
+  // Relations
+  user        Users       @relation("UserPermissionsUser", fields: [userId], references: [userId], onDelete: Cascade)
+  permission  Permissions @relation(fields: [permissionId], references: [permissionId], onDelete: Cascade)
+  grantedByUser Users     @relation("UserPermissionsGrantedBy", fields: [grantedBy], references: [userId])
+
+  @@unique([userId, permissionId])
+  @@index([userId])
+  @@index([permissionId])
+  @@index([grantedBy])
+  @@map("user_permissions")
+}
+
+model UserStatuses {
+  id       Int              @id @default(autoincrement())
+  userId   String           @unique // References Users.userId (UUID string)
+  isOnline Boolean          @default(false)
+  lastSeen DateTime?
+  status   UserStatusType?  @default(ONLINE)
+
+  // Relations
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_statuses")
+}
+
+model UserSettings {
+  id     Int    @id @default(autoincrement())
+  userId String @unique // References Users.userId (UUID string)
+
+  // Notification settings
+  emailNotifications    Boolean @default(true)
+  pushNotifications     Boolean @default(true)
+  messageNotifications  Boolean @default(true)
+  groupNotifications    Boolean @default(true)
+  
+  // Privacy settings
+  profileVisibility     PrivacyLevel @default(PUBLIC)
+  lastSeenVisibility    PrivacyLevel @default(PUBLIC)
+  onlineStatusVisible   Boolean      @default(true)
+  
+  // Chat settings
+  theme                 Theme   @default(LIGHT)
+  language              String  @default("en")
+  messagePreview        Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model GroupConversations {
+  id          Int      @id @default(autoincrement())
+  groupId     String   @unique // Generated via UUID in service layer
+  name        String
+  description String?
+  imageUrl    String?
+  isPrivate   Boolean  @default(false)
+  maxMembers  Int      @default(100)
+  createdById String   // References Users.userId (UUID string)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  createdBy Users         @relation(fields: [createdById], references: [userId])
+  members   GroupMembers[]
+  messages  Messages[]
+
+  @@map("group_conversations")
+}
+
+model GroupMembers {
+  id       Int               @id @default(autoincrement())
+  groupId  String            // References GroupConversations.groupId (UUID string)
+  userId   String            // References Users.userId (UUID string)
+  role     GroupMemberRole   @default(MEMBER)
+  joinedAt DateTime          @default(now())
+
+  // Relations
+  group GroupConversations @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+  user  Users              @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@map("group_members")
+}
+
+model PrivateConversations {
+  id             Int      @id @default(autoincrement())
+  conversationId String   @unique // Generated via UUID in service layer
+  userOneId      String   // References Users.userId (UUID string)
+  userTwoId      String   // References Users.userId (UUID string)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  userOne  Users     @relation("ConversationUserOne", fields: [userOneId], references: [userId])
+  userTwo  Users     @relation("ConversationUserTwo", fields: [userTwoId], references: [userId])
+  messages Messages[]
+
+  @@unique([userOneId, userTwoId])
+  @@map("private_conversations")
+}
+
+model Messages {
+  id               Int               @id @default(autoincrement())
+  messageId        String            @unique // Generated via UUID in service layer
+  senderId         String            // References Users.userId (UUID string)
+  receiverId       String?           // References Users.userId (UUID string), null for group messages
+  conversationId   String            // References conversation UUID
+  conversationType ConversationType  // PRIVATE or GROUP
+  content          String
+  messageType      MessageType       @default(TEXT)
+  isEdited         Boolean           @default(false)
+  isDeleted        Boolean           @default(false)
+  replyToId        String?           // References Messages.messageId (UUID string) - for message threading/replies
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  // Relations
+  sender              Users                @relation("MessageSender", fields: [senderId], references: [userId])
+  receiver            Users?               @relation("MessageReceiver", fields: [receiverId], references: [userId])
+  privateConversation PrivateConversations? @relation(fields: [conversationId], references: [conversationId])
+  groupConversation   GroupConversations?   @relation(fields: [conversationId], references: [groupId])
+  replyTo             Messages?            @relation("MessageReply", fields: [replyToId], references: [messageId])
+  replies             Messages[]           @relation("MessageReply")
+  media               Media[]
+  reports             Reports[]
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@map("messages")
+}
+
+model Media {
+  id        Int       @id @default(autoincrement())
+  mediaId   String    @unique // Generated via UUID in service layer
+  userId    String    // References Users.userId (UUID string)
+  messageId String    // References Messages.messageId (UUID string)
+  mediaType MediaType
+  mediaUrl  String
+  fileName  String?
+  fileSize  Int?
+  mimeType  String?
+  createdAt DateTime  @default(now())
+
+  // Relations
+  user    Users    @relation(fields: [userId], references: [userId])
+  message Messages @relation(fields: [messageId], references: [messageId], onDelete: Cascade)
+
+  @@map("media")
+}
+
+model NotificationTemplates {
+  id       Int    @id @default(autoincrement())
+  type     String @unique // "message", "group_invite", "friend_request", etc.
+  title    String
+  template String // Template with placeholders like "{{senderName}} sent you a message"
+
+  // Relations
+  notifications UserNotifications[]
+
+  @@map("notification_templates")
+}
+
+model UserNotifications {
+  id         Int       @id @default(autoincrement())
+  userId     String    // References Users.userId (UUID string)
+  templateId Int       // References NotificationTemplates.id (internal ID)
+  data       String    // JSON data for template variables
+  isRead     Boolean   @default(false)
+  isDeleted  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  readAt     DateTime?
+
+  // Relations
+  user     Users                @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  template NotificationTemplates @relation(fields: [templateId], references: [id])
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("user_notifications")
+}
+
+model Reports {
+  id                Int          @id @default(autoincrement())
+  reportId          String       @unique // Generated via UUID in service layer
+  reporterId        String       // References Users.userId (UUID string)
+  reportedUserId    String?      // References Users.userId (UUID string), null if reporting a message
+  reportedMessageId String?      // References Messages.messageId (UUID string), null if reporting a user
+  reason            ReportReason
+  description       String?
+  status            ReportStatus @default(PENDING)
+  reviewedById      String?      // References Users.userId (UUID string)
+  reviewedAt        DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // Relations
+  reporter        Users     @relation("Reporter", fields: [reporterId], references: [userId])
+  reportedUser    Users?    @relation("ReportedUser", fields: [reportedUserId], references: [userId])
+  reportedMessage Messages? @relation(fields: [reportedMessageId], references: [messageId])
+
+  @@index([status, createdAt])
+  @@map("reports")
+}
+
+model BlockLists {
+  id            Int      @id @default(autoincrement())
+  blockerId     String   // References Users.userId (UUID string)
+  blockedUserId String   // References Users.userId (UUID string)
+  reason        String?
+  createdAt     DateTime @default(now())
+
+  // Relations
+  blocker     Users @relation("Blocker", fields: [blockerId], references: [userId], onDelete: Cascade)
+  blockedUser Users @relation("BlockedUser", fields: [blockedUserId], references: [userId], onDelete: Cascade)
+
+  @@unique([blockerId, blockedUserId])
+  @@map("block_lists")
 }

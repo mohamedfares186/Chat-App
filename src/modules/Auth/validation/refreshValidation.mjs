@@ -1,0 +1,22 @@
+import { z } from "zod";
+
+/**
+ * Refresh token validation schema
+ */
+export const refreshValidationSchema = z.object({
+  refreshToken: z.string()
+    .min(1, "Refresh token is required")
+    .refine(
+      (token) => token.length > 10,
+      "Invalid refresh token format"
+    ),
+});
+
+/**
+ * Sanitize refresh token data
+ */
+export const sanitizeRefreshData = (data) => {
+  return {
+    refreshToken: data.refreshToken?.trim(),
+  };
+};

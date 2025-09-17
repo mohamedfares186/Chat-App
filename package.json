@@ -8,7 +8,8 @@
     "dev": "nodemon server.mjs",
     "test": "vitest",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "init-permissions": "node src/scripts/initializePermissions.mjs"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
   "type": "module",
   "dependencies": {
     "@prisma/client": "^6.15.0",
+    "@socket.io/redis-adapter": "^8.3.0",
     "bcryptjs": "^3.0.2",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
@@ -24,6 +26,8 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
+    "express-slow-down": "^3.0.0",
+    "file-type": "^21.0.0",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
     "ioredis": "^5.7.0",
@@ -34,6 +38,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",
+    "sanitize-html": "^2.17.0",
     "socket.io": "^4.8.1",
     "sqlite3": "^5.1.7",
     "uuid": "^11.1.0",

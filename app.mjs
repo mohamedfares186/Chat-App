@@ -5,9 +5,11 @@ const app = express();
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
-import { requestLogger } from "./middleware/logger.mjs";
-import limiter from "./middleware/rateLimit.mjs";
-import errorHandling from "./middleware/errorHandling.mjs";
+import compression from "compression";
+import { requestLogger } from "./src/middleware/logger.mjs";
+import limiter from "./src/middleware/rateLimit.mjs";
+import errorHandling from "./src/middleware/errorHandling.mjs";
+import passport from "./src/config/passport.mjs";
 
 // Middleware
 app.use(cookieParser());
@@ -16,6 +18,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(limiter);
 app.use(helmet());
+
+// Passport middleware
+app.use(passport.initialize());
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173", // frontend URL
@@ -23,25 +28,15 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
   })
 );
+app.use(compression());
 
 // Import routes
-import register from "./modules/Auth/api/registerApi.mjs";
-import login from "./modules/Auth/api/loginApi.mjs";
-import logout from "./modules/Auth/api/logoutApi.mjs";
-import email from "./modules/auth/api/emailVerifyApi.mjs";
-import refresh from "./modules/auth/api/refreshApi.mjs";
-import forget from "./modules/Auth/api/forgetPasswordApi.mjs";
-import reset from "./modules/Auth/api/resetPasswordApi.mjs";
+import auth from "./src/modules/Auth/api/authApi.mjs";
 
 // Use routes
-app.use("/api/auth", register);
-app.use("/api/auth", login);
-app.use("/api/auth", logout);
-app.use("/api/auth", email);
-app.use("/api/auth", refresh);
-app.use("/api/auth", forget);
-app.use("/api/auth", reset);
+app.use("/api/auth", auth);
 
+// Error handling
 app.use(errorHandling);
 
 export default app;
