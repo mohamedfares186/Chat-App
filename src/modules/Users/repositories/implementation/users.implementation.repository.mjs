@@ -70,5 +70,11 @@ class userRepositoryImpl extends UserRepository {
       data: user,
     });
   }
+
+  async delete(userId) {
+    return await prisma.users.delete({
+      where: { userId },
+    });
+  }
 }
 export default userRepositoryImpl;

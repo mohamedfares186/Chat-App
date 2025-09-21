@@ -29,5 +29,8 @@ class userRepository {
   async update(user) {
     throw new Error("Not Implemented");
   }
+  async delete(userId) {
+    throw new Error("Not Implemented");
+  }
 }
 export default userRepository;
