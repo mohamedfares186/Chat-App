@@ -2,8 +2,8 @@ import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as FacebookStrategy } from "passport-facebook";
-import userRepositoryImpl from "../modules/Auth/repositories/implementation/userRepositoryImpl.mjs";
-import { generateUserId } from "../utils/generateId.mjs";
+import userRepositoryImpl from "../modules/Users/repositories/implementation/users.implementation.repository.mjs";
+import { generateId } from "../utils/generateId.mjs";
 import PermissionService from "../services/permissionServices.mjs";
 import env from "./environment.mjs";
 import { logger } from "../middleware/logger.mjs";
@@ -66,7 +66,7 @@ if (env.googleClientId && env.googleClientSecret) {
           }
 
           // Create new user
-          const userId = generateUserId();
+          const userId = generateId();
           user = await userRepository.create({
             userId: userId,
             firstName: profile.name?.givenName || "Google",
@@ -135,7 +135,7 @@ if (env.facebookAppId && env.facebookAppSecret) {
           }
 
           // Create new user
-          const userId = generateUserId();
+          const userId = generateId();
           user = await userRepository.create({
             userId: userId,
             firstName: profile.name?.givenName || "Facebook",

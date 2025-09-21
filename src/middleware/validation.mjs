@@ -28,8 +28,7 @@ export const validateRequest = (schema, sanitizeFn = null) => {
         });
 
         return res.status(400).json({
-          error: "Validation failed",
-          details: errors,
+          error: "Validation failed"
         });
       }
 
@@ -39,7 +38,7 @@ export const validateRequest = (schema, sanitizeFn = null) => {
     } catch (error) {
       logger.error("Validation middleware error:", error);
       return res.status(500).json({
-        error: "Internal server error during validation",
+        error: "Internal server error",
       });
     }
   };
@@ -60,8 +59,7 @@ export const validateQuery = (schema) => {
         }));
 
         return res.status(400).json({
-          error: "Invalid query parameters",
-          details: errors,
+          error: "Invalid query parameters"
         });
       }
 
@@ -70,7 +68,7 @@ export const validateQuery = (schema) => {
     } catch (error) {
       logger.error("Query validation error:", error);
       return res.status(500).json({
-        error: "Internal server error during query validation",
+        error: "Internal server error",
       });
     }
   };
@@ -91,8 +89,7 @@ export const validateParams = (schema) => {
         }));
 
         return res.status(400).json({
-          error: "Invalid URL parameters",
-          details: errors,
+          error: "Invalid URL parameters"
         });
       }
 
@@ -101,7 +98,7 @@ export const validateParams = (schema) => {
     } catch (error) {
       logger.error("Params validation error:", error);
       return res.status(500).json({
-        error: "Internal server error during parameter validation",
+        error: "Internal server error",
       });
     }
   };

@@ -83,7 +83,7 @@ export const generateEmailVerificationToken = (user) => {
     user.userId,
     env.emailVerificationTokenSecret,
     3600000, // 1 hour
-    false
+    true
   );
 };
 

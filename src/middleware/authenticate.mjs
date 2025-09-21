@@ -1,5 +1,5 @@
 import { logger } from "./logger.mjs";
-import { validateAccessToken } from "../utils/tokenValidation.mjs";
+import { validateAccessToken } from "../utils/validateToken.mjs";
 
 const extractTokenFromRequest = (req) => {
   // Priority: Authorization header Bearer -> Cookie
@@ -29,8 +29,8 @@ const authenticate = (req, res, next) => {
     req.user = user;
     return next();
   } catch (error) {
-    logger.warn(`Authentication Error: ${error}`);
-    return res.status(500).json({ error: "Authentication error" });
+    logger.warn("Authentication error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 

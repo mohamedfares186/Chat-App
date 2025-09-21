@@ -22,8 +22,8 @@ const authorize =
 
       return next();
     } catch (error) {
-      logger.warn(`Authorization Error: ${error}`);
-      return res.status(500).json({ error: "Something went wrong" });
+      logger.warn("Authorization error:", errror);
+      return res.status(500).json({ error: "Internal server error" });
     }
   };
 
@@ -55,8 +55,8 @@ const requirePermission =
 
       return next();
     } catch (error) {
-      logger.warn(`Permission Authorization Error: ${error}`);
-      return res.status(500).json({ error: "Something went wrong" });
+      logger.warn("Permission authorization error:", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
   };
 
@@ -104,8 +104,8 @@ const authorizeWithPermission =
 
       return next();
     } catch (error) {
-      logger.warn(`Combined Authorization Error: ${error}`);
-      return res.status(500).json({ error: "Something went wrong" });
+      logger.warn("Combined authorization error:", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
   };
 

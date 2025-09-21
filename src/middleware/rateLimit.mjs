@@ -17,7 +17,7 @@ const rateLimitHandler = (req, res, next, options) => {
     userAgent: req.get("User-Agent"),
     url: req.originalUrl,
     method: req.method,
-    userId: req.user?.id || "anonymous",
+    userId: req.user?.userId || "anonymous",
     timestamp: new Date().toISOString(),
   });
 
@@ -27,31 +27,24 @@ const rateLimitHandler = (req, res, next, options) => {
 // Skip rate limit in certain conditions
 // eslint-disable-next-line
 const skipRequests = (req, res) => {
-  // Skip for admin users (be careful with this)
   if (req.user?.role === "admin") {
     return true;
   }
 
-  // Skip in development environment
   if (process.env.NODE_ENV === "development") {
-    return true;
-  }
-
-  // Skip for internal services (based on special header)
-  if (req.headers["x-internal-service"] === process.env.INTERNAL_SERVICE_KEY) {
     return true;
   }
 
   return false;
 };
 
-// General rate limiter (most permissive)
+// General rate limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 1000, // Limit each IP to 1000 requests per windowMs
+  limit: 1000,
   message: "Too many requests, please try again later",
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
   handler: rateLimitHandler,
   skip: skipRequests,
 });

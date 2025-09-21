@@ -31,10 +31,12 @@ app.use(
 app.use(compression());
 
 // Import routes
-import auth from "./src/modules/Auth/api/authApi.mjs";
+import auth from "./src/modules/Auth/routes/auth.route.mjs";
+import users from "./src/modules/Users/routes/users.route.mjs";
 
 // Use routes
 app.use("/api/auth", auth);
+app.use("/api/users", users);
 
 // Error handling
 app.use(errorHandling);

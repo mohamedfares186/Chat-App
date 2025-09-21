@@ -8,8 +8,7 @@
     "dev": "nodemon server.mjs",
     "test": "vitest",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "init-permissions": "node src/scripts/initializePermissions.mjs"
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "",

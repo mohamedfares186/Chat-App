@@ -1,6 +1,6 @@
-import logger from "./logger.mjs";
+import { logger } from "./logger.mjs";
 
-const selfAccess = (req, res, next) => {
+const isSelf = (req, res, next) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
 
@@ -11,9 +11,9 @@ const selfAccess = (req, res, next) => {
 
     return res.status(403).json({ error: "Access Denied" });
   } catch (error) {
-    logger.warn(`Self access error: ${error}`);
-    return res.status(500).json({ error: "Something went wrong" });
+    logger.warn("Self access error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export default selfAccess;
+export default isSelf;
