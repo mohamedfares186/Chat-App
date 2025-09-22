@@ -3,9 +3,9 @@ import userRepositoryImpl from "../../Users/repositories/implementation/users.im
 import { validateEmailVerificationToken } from "../../../utils/validateToken.mjs";
 
 class EmailVerificationService {
-  constructor() {
-    this.users = new userRepositoryImpl();
-    this.authUtils = new AuthUtils();
+  constructor(users = new userRepositoryImpl(), utils = new AuthUtils()) {
+    this.users = users;
+    this.utils = utils;
   }
 
   async verifyEmail(userId, token) {
@@ -46,7 +46,7 @@ class EmailVerificationService {
     }
 
     // Send verification email using AuthUtils
-    const result = await this.authUtils.sendVerifyEmail(user);
+    const result = await this.utils.sendVerifyEmail(user);
     return result;
   }
 }

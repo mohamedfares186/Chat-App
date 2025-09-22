@@ -2,31 +2,31 @@ import userRepositoryImpl from "../../Users/repositories/implementation/users.im
 import AuthUtils from "../utils/auth.util.mjs";
 
 class LoginService {
-  constructor(userRepo = new userRepositoryImpl()) {
-    this.userRepo = userRepo;
-    this.authUtils = new AuthUtils();
+  constructor(users = new userRepositoryImpl(), utils = new AuthUtils()) {
+    this.users = users;
+    this.utils = utils;
   }
 
   async login(loginData) {
     // Use AuthUtils for validation
-    this.authUtils.validateLoginData(loginData);
+    this.utils.validateLoginData(loginData);
 
     // Find user by username or email
     const user =
-      (await this.userRepo.findByUsername(loginData.username)) ||
-      (await this.userRepo.findByEmail(loginData.email));
+      (await this.users.findByUsername(loginData.username)) ||
+      (await this.users.findByEmail(loginData.email));
 
     if (!user) {
       throw new Error("Invalid credentials");
     }
 
     // Check if account is active
-    if (!this.authUtils.isAccountActive(user)) {
+    if (!this.utils.isAccountActive(user)) {
       throw new Error("Account is locked or suspended");
     }
 
     // Compare password using AuthUtils
-    const isPasswordValid = await this.authUtils.comparePassword(
+    const isPasswordValid = await this.utils.comparePassword(
       loginData.password,
       user.password
     );
@@ -35,7 +35,7 @@ class LoginService {
     }
 
     // Generate tokens using AuthUtils
-    const tokens = await this.authUtils.generateTokens(user);
+    const tokens = await this.utils.generateTokens(user);
     return tokens;
   }
 }
