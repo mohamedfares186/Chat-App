@@ -14,6 +14,9 @@ class userRepository {
   async findByUsername(username) {
     throw new Error("Not Implemented");
   }
+  async findSafeId(userId) {
+    throw new Error("Not Implemented");
+  }
   async findSafeUsername(username) {
     throw new Error("Not Implemented");
   }

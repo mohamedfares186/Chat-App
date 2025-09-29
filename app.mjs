@@ -33,10 +33,14 @@ app.use(compression());
 // Import routes
 import auth from "./src/modules/Auth/routes/auth.route.mjs";
 import users from "./src/modules/Users/routes/users.route.mjs";
+import privateRoom from "./src/modules/Private/routes/private.route.mjs";
+import group from "./src/modules/Groups/routes/group.route.mjs";
 
 // Use routes
 app.use("/api/auth", auth);
 app.use("/api/users", users);
+app.use("/api/private", privateRoom);
+app.use("/api/group", group);
 
 // Error handling
 app.use(errorHandling);

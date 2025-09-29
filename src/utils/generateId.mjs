@@ -5,8 +5,8 @@ const generateId = () => {
   return v4();
 };
 
-const generateMessageId = () => {
+const generateGeneralId = () => {
   return v7();
 };
 
-export { generateId, generateMessageId };
+export { generateId, generateGeneralId };

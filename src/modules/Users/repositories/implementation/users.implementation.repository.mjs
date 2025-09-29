@@ -28,6 +28,21 @@ class userRepositoryImpl extends UserRepository {
   async findByUsername(username) {
     return await prisma.users.findUnique({ where: { username } });
   }
+  async findSafeId(userId) {
+    return await prisma.users.findUnique({
+      where: { userId },
+      select: {
+        userId: true,
+        displayName: true,
+        email: true,
+        username: true,
+        userRoles: true,
+        isBanned: true,
+        isActive: true,
+        isVerified: true,
+      },
+    });
+  }
   async findSafeUsername(username) {
     return await prisma.users.findUnique({
       where: { username },
