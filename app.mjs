@@ -10,6 +10,11 @@ import { requestLogger } from "./src/middleware/logger.mjs";
 import limiter from "./src/middleware/rateLimit.mjs";
 import errorHandling from "./src/middleware/errorHandling.mjs";
 import passport from "./src/config/passport.mjs";
+import initSocket from "./src/modules/Realtime/index.mjs";
+import http from "http";
+
+const server = http.createServer(app);
+initSocket(server); // initializes socket.io and event handlers
 
 // Middleware
 app.use(cookieParser());

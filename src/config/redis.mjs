@@ -2,8 +2,7 @@ import Redis from "ioredis";
 import { logger } from "../middleware/logger.mjs";
 import env from "./environment.mjs";
 
-const redis = new Redis({
-  url: env.redisUrl,
+const redis = new Redis(env.redisUrl, {
   retryDelayOnFailover: 100,
   maxRetriesPerRequest: 3,
   lazyConnect: true,
