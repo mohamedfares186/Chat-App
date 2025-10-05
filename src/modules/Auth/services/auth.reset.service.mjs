@@ -1,9 +1,9 @@
-import userRepositoryImpl from "../../Users/repositories/implementation/users.implementation.repository.mjs";
+import AuthRepositoryImpl from "../repository/users.repository.implementation.mjs";
 import AuthUtils from "../utils/auth.util.mjs";
 import { validateResetPasswordToken } from "../../../utils/validateToken.mjs";
 
 class ResetPasswordService {
-  constructor(users = new userRepositoryImpl(), utils = new AuthUtils()) {
+  constructor(users = new AuthRepositoryImpl(), utils = new AuthUtils()) {
     this.users = users;
     this.utils = utils;
   }

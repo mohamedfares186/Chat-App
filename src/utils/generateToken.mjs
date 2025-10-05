@@ -45,16 +45,10 @@ export const generateRefreshToken = (user) => {
  * Generate Secure Token (for email verification, password reset, etc.)
  * @param {string} userId - User ID
  * @param {string} secret - Secret key for HMAC
- * @param {number} expirationMs - Expiration time in milliseconds (default: 1 hour)
  * @param {boolean} includeUserId - Whether to include userId in token (for password reset)
  * @returns {string} Generated token
  */
-export const generateSecureToken = (
-  userId,
-  secret,
-  expirationMs = 3600000,
-  includeUserId = false
-) => {
+export const generateSecureToken = (userId, secret, includeUserId = false) => {
   try {
     const random = crypto.randomBytes(32).toString("hex");
     const timeStamp = Date.now();
@@ -82,7 +76,6 @@ export const generateEmailVerificationToken = (user) => {
   return generateSecureToken(
     user.userId,
     env.emailVerificationTokenSecret,
-    3600000, // 1 hour
     true
   );
 };
@@ -94,7 +87,6 @@ export const generateResetPasswordToken = (user) => {
   return generateSecureToken(
     user.userId,
     env.resetPasswordTokenSecret,
-    3600000, // 1 hour
     true // Include userId for easy extraction
   );
 };

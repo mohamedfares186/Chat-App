@@ -28,7 +28,7 @@ export const validateRequest = (schema, sanitizeFn = null) => {
         });
 
         return res.status(400).json({
-          error: "Validation failed"
+          error: "Validation failed",
         });
       }
 
@@ -58,8 +58,15 @@ export const validateQuery = (schema) => {
           message: err.message,
         }));
 
+        logger.error({
+          errors,
+          ip: req.ip,
+          userAgent: req.get("User-Agent"),
+          body: req.body,
+        });
+
         return res.status(400).json({
-          error: "Invalid query parameters"
+          error: "Invalid query parameters",
         });
       }
 
@@ -88,8 +95,15 @@ export const validateParams = (schema) => {
           message: err.message,
         }));
 
+        logger.error({
+          errors,
+          ip: req.ip,
+          userAgent: req.get("User-Agent"),
+          body: req.body,
+        });
+
         return res.status(400).json({
-          error: "Invalid URL parameters"
+          error: "Invalid URL parameters",
         });
       }
 

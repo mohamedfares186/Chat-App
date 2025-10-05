@@ -1,10 +1,10 @@
-import userRepositoryImpl from "../../Users/repositories/implementation/users.implementation.repository.mjs";
+import AuthRepositoryImpl from "../repository/users.repository.implementation.mjs";
 import { generateId } from "../../../utils/generateId.mjs";
 import AuthUtils from "../utils/auth.util.mjs";
 import PermissionService from "../../../services/permissionServices.mjs";
 
 class RegisterUserService {
-  constructor(users = new userRepositoryImpl(), utils = new AuthUtils()) {
+  constructor(users = new AuthRepositoryImpl(), utils = new AuthUtils()) {
     this.users = users;
     this.utils = utils;
   }

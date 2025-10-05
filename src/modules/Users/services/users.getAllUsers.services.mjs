@@ -1,7 +1,6 @@
-import userRepositoryImpl from "../repositories/implementation/users.implementation.repository.mjs";
-
+import UserRepositoryImpl from "../repositories/implementation/users.implementation.repository.mjs";
 class GetAllUsersService {
-  constructor(users = new userRepositoryImpl()) {
+  constructor(users = new UserRepositoryImpl()) {
     this.users = users;
   }
 

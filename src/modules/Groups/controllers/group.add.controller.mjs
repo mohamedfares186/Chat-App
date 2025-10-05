@@ -5,8 +5,17 @@ const addGroupService = new AddGroupService();
 
 const addGroupController = async (req, res) => {
   try {
-    const memberData = req.body;
-    memberData.addedBy = req.user.userId;
+    const { groupId, userId } = req.body;
+
+    if (!groupId || !userId) {
+      return res.status(400).json({ error: "groupId and userId are required" });
+    }
+
+    const memberData = {
+      groupId,
+      userId,
+    };
+
     const newMember = await addGroupService.addMemberToGroup(memberData);
     return res
       .status(201)

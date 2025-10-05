@@ -1,4 +1,16 @@
-class userRepository {
+/* eslint-disable */
+
+/**
+ * Abstract class
+ * @class
+ */
+
+class UserRepository {
+  constructor() {
+    if (this.constructor == UserRepository) {
+      throw new Error("This class can not be instantiated");
+    }
+  }
   async create(user) {
     throw new Error("Not Implemented");
   }
@@ -36,4 +48,5 @@ class userRepository {
     throw new Error("Not Implemented");
   }
 }
-export default userRepository;
+
+export default UserRepository;

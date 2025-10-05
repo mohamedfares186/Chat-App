@@ -1,10 +1,10 @@
-import userRepositoryImpl from "../repositories/implementation/users.implementation.repository.mjs";
+import UserRepositoryImpl from "../repositories/implementation/users.implementation.repository.mjs";
 import AuthUtils from "../../Auth/utils/auth.util.mjs";
 import { generateId } from "../../../utils/generateId.mjs";
 import PermissionService from "../../../services/permissionServices.mjs";
 
 class CreateUserService {
-  constructor(users = new userRepositoryImpl(), authUtils = new AuthUtils()) {
+  constructor(users = new UserRepositoryImpl(), authUtils = new AuthUtils()) {
     this.users = users;
     this.authUtils = authUtils;
   }
@@ -15,12 +15,12 @@ class CreateUserService {
     // Check if user already exists
     const existingUser = await this.users.findByEmail(userData.email);
     if (existingUser) {
-      throw new Error("User with this email already exists");
+      throw new Error("Invalid Credentials");
     }
 
     const existingUsername = await this.users.findByUsername(userData.username);
     if (existingUsername) {
-      throw new Error("Username is already taken");
+      throw new Error("Invalid Credentials");
     }
 
     // Hash password using AuthUtils

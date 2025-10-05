@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import createRoomController from "../controllers/private.createRoom.controller.mjs";
+import createRoomController from "../controllers/private.create.controller.mjs";
 
 const router = Router();
 

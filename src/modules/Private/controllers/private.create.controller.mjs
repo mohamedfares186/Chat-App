@@ -1,4 +1,4 @@
-import CreateRoomService from "../services/private.createRoom.service.mjs";
+import CreateRoomService from "../services/private.create.service.mjs";
 import { logger } from "../../../middleware/logger.mjs";
 
 const room = new CreateRoomService();

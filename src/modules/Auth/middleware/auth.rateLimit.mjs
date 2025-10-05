@@ -5,10 +5,10 @@ import { logger } from "./logger.mjs";
  * Auth-specific rate limiting configurations
  */
 
-// Login rate limiter - more restrictive
+// Login rate limiter
 export const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 5, // 5 attempts per window
+  windowMs: 10 * 60 * 1000,
+  limit: 10,
   message: {
     error: "Too many login attempts, please try again later",
     retryAfter: 15 * 60, // 15 minutes in seconds
@@ -31,8 +31,8 @@ export const loginLimiter = rateLimit({
 
 // Registration rate limiter
 export const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  limit: 3, // 3 registrations per hour
+  windowMs: 30 * 60 * 1000, // 30 minutes
+  limit: 10, // 3 registrations per hour
   message: {
     error: "Too many registration attempts, please try again later",
     retryAfter: 60 * 60, // 1 hour in seconds
@@ -56,7 +56,7 @@ export const registerLimiter = rateLimit({
 // Password reset rate limiter
 export const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  limit: 3, // 3 password reset attempts per hour
+  limit: 10,
   message: {
     error: "Too many password reset attempts, please try again later",
     retryAfter: 60 * 60, // 1 hour in seconds
@@ -79,8 +79,8 @@ export const passwordResetLimiter = rateLimit({
 
 // Email verification rate limiter
 export const emailVerificationLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
-  limit: 3, // 3 verification attempts per 5 minutes
+  windowMs: 5 * 60 * 1000,
+  limit: 3,
   message: {
     error: "Too many email verification attempts, please try again later",
     retryAfter: 5 * 60, // 5 minutes in seconds
@@ -103,8 +103,8 @@ export const emailVerificationLimiter = rateLimit({
 
 // Token refresh rate limiter
 export const tokenRefreshLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 10, // 10 refresh attempts per 15 minutes
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
   message: {
     error: "Too many token refresh attempts, please try again later",
     retryAfter: 15 * 60, // 15 minutes in seconds

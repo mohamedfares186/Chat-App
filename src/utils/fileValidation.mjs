@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { fileTypeFromBuffer } from "file-type";
-import validator from "validator";
 
 /**
  * Comprehensive file validation utility
@@ -14,7 +13,11 @@ class FileValidator {
       maxSize: 5 * 1024 * 1024, // 5MB
     },
     document: {
-      mimeTypes: ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      mimeTypes: [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ],
       extensions: [".pdf", ".doc", ".docx"],
       maxSize: 10 * 1024 * 1024, // 10MB
     },
@@ -37,7 +40,7 @@ class FileValidator {
     try {
       // Check file type from buffer
       const fileType = await fileTypeFromBuffer(buffer);
-      
+
       if (!fileType) {
         throw new Error("Unable to determine file type");
       }
@@ -54,7 +57,9 @@ class FileValidator {
 
       // Check file size
       if (buffer.length > allowedConfig.maxSize) {
-        throw new Error(`File too large. Max size: ${allowedConfig.maxSize} bytes`);
+        throw new Error(
+          `File too large. Max size: ${allowedConfig.maxSize} bytes`
+        );
       }
 
       // Check for malicious patterns in file content
@@ -129,20 +134,47 @@ class FileValidator {
     }
 
     // Check for invalid characters
-    const invalidChars = /[<>:"/\\|?*\x00-\x1f]/;
+    const invalidChars = /\p{Cc}/gu;
     if (invalidChars.test(fileName)) {
       throw new Error("File name contains invalid characters");
     }
 
     // Check for reserved names (Windows)
-    const reservedNames = ["CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"];
+    const reservedNames = [
+      "CON",
+      "PRN",
+      "AUX",
+      "NUL",
+      "COM1",
+      "COM2",
+      "COM3",
+      "COM4",
+      "COM5",
+      "COM6",
+      "COM7",
+      "COM8",
+      "COM9",
+      "LPT1",
+      "LPT2",
+      "LPT3",
+      "LPT4",
+      "LPT5",
+      "LPT6",
+      "LPT7",
+      "LPT8",
+      "LPT9",
+    ];
     const nameWithoutExt = fileName.split(".")[0].toUpperCase();
     if (reservedNames.includes(nameWithoutExt)) {
       throw new Error("File name is reserved");
     }
 
     // Check for path traversal attempts
-    if (fileName.includes("..") || fileName.includes("/") || fileName.includes("\\")) {
+    if (
+      fileName.includes("..") ||
+      fileName.includes("/") ||
+      fileName.includes("\\")
+    ) {
       throw new Error("Path traversal attempt detected");
     }
 
@@ -156,8 +188,10 @@ class FileValidator {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 8);
     const extension = originalName.split(".").pop() || "";
-    
-    return `${userId}_${timestamp}_${random}${extension ? `.${extension}` : ""}`;
+
+    return `${userId}_${timestamp}_${random}${
+      extension ? `.${extension}` : ""
+    }`;
   }
 
   /**
@@ -169,11 +203,13 @@ class FileValidator {
       this.validateFileName(file.originalname);
 
       // Convert file to buffer if needed
-      const buffer = Buffer.isBuffer(file.buffer) ? file.buffer : Buffer.from(file.buffer);
+      const buffer = Buffer.isBuffer(file.buffer)
+        ? file.buffer
+        : Buffer.from(file.buffer);
 
       // Validate file buffer
       const validation = await this.validateFileBuffer(buffer, allowedCategory);
-      
+
       if (!validation.isValid) {
         throw new Error(validation.error);
       }
@@ -200,19 +236,18 @@ class FileValidator {
 // Zod schemas for file validation
 export const fileValidationSchemas = {
   imageUpload: z.object({
-    file: z.any().refine(
-      (file) => file && file.buffer,
-      "File is required"
-    ),
+    file: z.any().refine((file) => file && file.buffer, "File is required"),
     category: z.enum(["image", "document", "video", "audio"]).default("image"),
   }),
 
-  fileName: z.string()
+  fileName: z
+    .string()
     .min(1, "File name is required")
     .max(255, "File name too long")
-    .regex(/^[^<>:"/\\|?*\x00-\x1f]+$/, "File name contains invalid characters")
+    .regex(/\p{Cc}/gu, "File name contains invalid characters")
     .refine(
-      (name) => !name.includes("..") && !name.includes("/") && !name.includes("\\"),
+      (name) =>
+        !name.includes("..") && !name.includes("/") && !name.includes("\\"),
       "Path traversal attempt detected"
     ),
 };

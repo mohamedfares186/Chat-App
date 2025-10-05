@@ -34,7 +34,7 @@ class InputSanitizer {
     return input
       .trim()
       .replace(/[<>]/g, "") // Remove potential HTML tags
-      .replace(/[\x00-\x1F\x7F]/g, "") // Remove control characters
+      .replace(/\p{Cc}/gu, "") // Remove control characters
       .substring(0, maxLength);
   }
 
@@ -72,7 +72,7 @@ class InputSanitizer {
     return displayName
       .trim()
       .replace(/[<>]/g, "") // Remove HTML tags
-      .replace(/[\x00-\x1F\x7F]/g, "") // Remove control characters
+      .replace(/\p{Cc}/gu, "") // Remove control characters
       .substring(0, 50);
   }
 

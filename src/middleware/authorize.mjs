@@ -22,7 +22,7 @@ const authorize =
 
       return next();
     } catch (error) {
-      logger.warn("Authorization error:", errror);
+      logger.warn("Authorization error:", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   };

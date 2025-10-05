@@ -1,9 +1,9 @@
 import AuthUtils from "../utils/auth.util.mjs";
-import userRepositoryImpl from "../../Users/repositories/implementation/users.implementation.repository.mjs";
+import AuthRepositoryImpl from "../repository/users.repository.implementation.mjs";
 import { validateEmailVerificationToken } from "../../../utils/validateToken.mjs";
 
 class EmailVerificationService {
-  constructor(users = new userRepositoryImpl(), utils = new AuthUtils()) {
+  constructor(users = new AuthRepositoryImpl(), utils = new AuthUtils()) {
     this.users = users;
     this.utils = utils;
   }
