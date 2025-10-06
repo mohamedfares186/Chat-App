@@ -7,7 +7,7 @@
 
 class UserRepository {
   constructor() {
-    if (this.constructor == UserRepository) {
+    if (this.constructor === UserRepository) {
       throw new Error("This class can not be instantiated");
     }
   }

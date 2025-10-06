@@ -51,16 +51,16 @@ const initSocket = async (server) => {
 
   // Connection handler
   io.on("connection", (socket) => {
-    logger.info(`User connected: ${socket.user.id}`);
+    logger.info(`User connected: ${socket.user.userId}`);
 
     socket.on("joinRoom", (roomId) => {
       socket.join(roomId);
-      io.to(roomId).emit("userJoined", { userId: socket.user.id });
+      io.to(roomId).emit("userJoined", { userId: socket.user.userId });
     });
 
     socket.on("message", ({ roomId, text }) => {
       const message = {
-        userId: socket.user.id,
+        userId: socket.user.userId,
         text,
         timestamp: Date.now(),
       };
@@ -69,7 +69,7 @@ const initSocket = async (server) => {
     });
 
     socket.on("disconnect", () => {
-      logger.info(`User disconnected: ${socket.user.id}`);
+      logger.info(`User disconnected: ${socket.user.userId}`);
     });
   });
 

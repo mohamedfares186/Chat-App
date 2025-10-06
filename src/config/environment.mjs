@@ -5,6 +5,9 @@ const env = {
   port: process.env.PORT || 8080,
   databaseUrl: process.env.DATABASE_URL,
   redisUrl: process.env.REDIS_URL,
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
   accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
   accessTokenExpire: process.env.ACCESS_TOKEN_EXPIRE || "15m", // Default 15 minutes
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,

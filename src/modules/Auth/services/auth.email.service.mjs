@@ -1,5 +1,5 @@
 import AuthUtils from "../utils/auth.util.mjs";
-import AuthRepositoryImpl from "../repository/users.repository.implementation.mjs";
+import AuthRepositoryImpl from "../repositories/users.repository.implementation.mjs";
 import { validateEmailVerificationToken } from "../../../utils/validateToken.mjs";
 
 class EmailVerificationService {

@@ -1,4 +1,4 @@
-import AuthRepositoryImpl from "../repository/users.repository.implementation.mjs";
+import AuthRepositoryImpl from "../repositories/users.repository.implementation.mjs";
 import { generateId } from "../../../utils/generateId.mjs";
 import AuthUtils from "../utils/auth.util.mjs";
 import PermissionService from "../../../services/permissionServices.mjs";

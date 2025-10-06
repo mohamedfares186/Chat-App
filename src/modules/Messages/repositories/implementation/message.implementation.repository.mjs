@@ -7,5 +7,16 @@ class MessageRepositoryImpl extends MessageRepository {
       data: message,
     });
   }
+
+  async getMessagesByConversationId(conversationId) {
+    return await prisma.messages.findMany({
+      where: {
+        conversationId: conversationId,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+  }
 }
 export default MessageRepositoryImpl;

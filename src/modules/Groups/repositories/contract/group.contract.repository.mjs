@@ -7,7 +7,7 @@
 
 class GroupRepository {
   constructor() {
-    if (this.constructor == GroupRepository) {
+    if (this.constructor === GroupRepository) {
       throw new Error("This class can not be instantiated");
     }
   }

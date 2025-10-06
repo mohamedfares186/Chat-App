@@ -7,7 +7,7 @@
 
 class MessageRepository {
   constructor() {
-    if (this.constructor == MessageRepository) {
+    if (this.constructor === MessageRepository) {
       throw new Error("This class can not be instantiated");
     }
   }

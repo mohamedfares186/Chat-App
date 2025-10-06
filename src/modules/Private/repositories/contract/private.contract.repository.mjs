@@ -5,7 +5,7 @@
 
 class PrivateRepository {
   constructor() {
-    if (this.constructor == PrivateRepository) {
+    if (this.constructor === PrivateRepository) {
       throw new Error("This class can not be instantiated");
     }
   }

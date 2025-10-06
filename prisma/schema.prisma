@@ -350,11 +350,13 @@ model Messages {
 
 model Media {
   id        Int       @id @default(autoincrement())
-  mediaId   String    @unique // Generated via UUID in service layer
+  mediaId   String    @unique // Media id provided by cloudinary
   userId    String    // References Users.userId (UUID string)
   messageId String    // References Messages.messageId (UUID string)
   mediaType MediaType
   mediaUrl  String
+  profilePictureUrl String?
+  profilePictureId  String?
   fileName  String?
   fileSize  Int?
   mimeType  String?
